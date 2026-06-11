@@ -1,0 +1,32 @@
+name: Daily LINE Reminder
+
+on:
+  schedule:
+    # 每天早上 9:00 (台灣時間 UTC+8，所以填 UTC 01:00)
+    - cron: "0 1 * * *"
+  workflow_dispatch:   # 也可以手動在 GitHub 上按按鈕觸發，方便測試
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run reminder script
+        env:
+          NOTION_TOKEN:       ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          LINE_TOKEN:         ${{ secrets.LINE_TOKEN }}
+          LINE_GROUP_ID:      ${{ secrets.LINE_GROUP_ID }}
+          LINE_USER_ID:       ${{ secrets.LINE_USER_ID }}
+        run: python remind.py
