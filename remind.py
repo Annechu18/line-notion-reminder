@@ -12,7 +12,7 @@ LINE_USER_ID      = os.environ["LINE_USER_ID"]   # 被標記的人的 userId
 # Notion Database 中代表「未完成」的欄位設定
 # 若你用 checkbox 欄位，把下面設為 checkbox 模式
 # 若你用 Status 欄位（例如 "Status": "Not started"），改用 status 模式
-FILTER_MODE       = "checkbox"   # "checkbox" 或 "status"
+FILTER_MODE       = "Status"   # "checkbox" 或 "status"
 CHECKBOX_FIELD    = "Done"       # checkbox 欄位名稱（打勾=完成）
 STATUS_FIELD      = "Status"     # status 欄位名稱
 STATUS_INCOMPLETE = ["Not started", "In progress"]  # 視為未完成的值
