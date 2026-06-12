@@ -69,9 +69,9 @@ def send_line_message(tasks):
     message = (
         f"📋 每日待辦提醒\n"
         f"\u200b\n"               # zero-width space 讓 mention 之後換行更好看
-        f"嗨 ${{mention}}，你還有 {len(tasks)} 件事項未完成：\n\n"
+        f"嗨 ${{mention}}，我來吵你了，你有 {len(tasks)} 件事項未完成：\n\n"
         f"{task_lines}\n\n"
-        f"加油！💪"
+        f"加緊腳步慢慢來！💪"
     )
 
     # LINE Mention 格式：需要把 mention 嵌入 altText + contents
