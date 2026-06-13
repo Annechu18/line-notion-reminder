@@ -9,16 +9,13 @@ LINE_TOKEN        = os.environ["LINE_TOKEN"]
 LINE_GROUP_ID     = os.environ["LINE_GROUP_ID"]
 LINE_USER_ID      = os.environ["LINE_USER_ID"]   # 被標記的人的 userId
 
-# Notion Database 中代表「未完成」的欄位設定
-# 若你用 checkbox 欄位，把下面設為 checkbox 模式
-# 若你用 Status 欄位（例如 "Status": "Not started"），改用 status 模式
-FILTER_MODE       = "Status"   # "checkbox" 或 "status"
+FILTER_MODE       = "status"     # "checkbox" 或 "status"
 CHECKBOX_FIELD    = "Done"       # checkbox 欄位名稱（打勾=完成）
 STATUS_FIELD      = "Status"     # status 欄位名稱
 STATUS_INCOMPLETE = ["Not started", "In progress"]  # 視為未完成的值
 TITLE_FIELD       = "Name"       # 任務標題的欄位名稱
+LINK_FIELD        = "Link"       # URL 欄位名稱
 # ────────────────────────────────────────────────────────
-
 
 def fetch_incomplete_tasks():
     url = f"https://api.notion.com/v1/databases/{NOTION_DATABASE_ID}/query"
@@ -27,7 +24,6 @@ def fetch_incomplete_tasks():
         "Notion-Version": "2022-06-28",
         "Content-Type": "application/json",
     }
-
     if FILTER_MODE == "checkbox":
         payload = {
             "filter": {
@@ -44,7 +40,6 @@ def fetch_incomplete_tasks():
                 ]
             }
         }
-
     resp = requests.post(url, headers=headers, json=payload)
     resp.raise_for_status()
     results = resp.json().get("results", [])
@@ -55,32 +50,29 @@ def fetch_incomplete_tasks():
         title_prop = props.get(TITLE_FIELD, {})
         title_list = title_prop.get("title", [])
         title = "".join(t.get("plain_text", "") for t in title_list).strip()
+        link = props.get(LINK_FIELD, {}).get("url") or ""
         if title:
-            tasks.append(title)
+            tasks.append({"title": title, "link": link})
     return tasks
-
 
 def send_line_message(tasks):
     if not tasks:
         print("沒有未完成事項，略過傳送。")
         return
 
-    task_lines = "\n".join(f"  • {t}" for t in tasks)
-    message = (
-        f"📋 每日待辦提醒\n"
-        f"\u200b\n"               # zero-width space 讓 mention 之後換行更好看
-        f"嗨 ${{mention}}，我來吵你了，你有 {len(tasks)} 件事項未完成：\n\n"
-        f"{task_lines}\n\n"
-        f"加緊腳步慢慢來！💪"
-    )
+    task_lines = ""
+    for t in tasks:
+        task_lines += f"• {t['title']}"
+        if t["link"]:
+            task_lines += f"\n  🔗 {t['link']}"
+        task_lines += "\n"
 
-    # LINE Mention 格式：需要把 mention 嵌入 altText + contents
     payload = {
         "to": LINE_GROUP_ID,
         "messages": [
             {
                 "type": "textV2",
-                "text": f"📋 每日待辦提醒\n\n嗨 {{mention}}，你還有 {len(tasks)} 件事項未完成：\n\n{task_lines}\n\n加油！💪",
+                "text": f"📋 每日待辦提醒\n\n嗨 {{mention}}，我來吵你了，你有 {len(tasks)} 件事項未完成：\n\n{task_lines}\n加緊腳步慢慢來！💪",
                 "substitution": {
                     "mention": {
                         "type": "mention",
@@ -105,7 +97,6 @@ def send_line_message(tasks):
     )
     resp.raise_for_status()
     print(f"✅ 已傳送提醒，共 {len(tasks)} 件待辦事項。")
-
 
 if __name__ == "__main__":
     print("🔍 讀取 Notion 待辦事項...")
