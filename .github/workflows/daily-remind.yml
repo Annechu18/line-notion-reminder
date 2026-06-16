@@ -2,9 +2,8 @@ name: Daily LINE Reminder
 
 on:
   schedule:
-    # 每天早上 9:00 (台灣時間 UTC+8，所以填 UTC 01:00)
     - cron: "0 1 * * 1-5"
-  workflow_dispatch:   # 也可以手動在 GitHub 上按按鈕觸發，方便測試
+  workflow_dispatch:
 
 jobs:
   remind:
@@ -12,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
