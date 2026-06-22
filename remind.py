@@ -38,7 +38,10 @@ def fetch_incomplete_tasks():
                     {"property": STATUS_FIELD, "status": {"equals": s}}
                     for s in STATUS_INCOMPLETE
                 ]
-            }
+            },
+            "sorts": [
+                {"property": "Order", "direction": "ascending"}
+            ]
         }
     resp = requests.post(url, headers=headers, json=payload)
     resp.raise_for_status()
