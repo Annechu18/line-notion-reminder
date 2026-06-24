@@ -60,7 +60,7 @@ def fetch_incomplete_tasks():
 
 def send_line_message(tasks):
     if not tasks:
-        print("沒有未完成事項，略過傳送。")
+        print("恭喜！沒有未完成事項")
         return
 
     task_lines = ""
@@ -68,7 +68,7 @@ def send_line_message(tasks):
         task_lines += f"• {t['title']}"
         if t["link"]:
             task_lines += f"\n  🔗 {t['link']}"
-        task_lines += "\n"
+        task_lines += "\n\n"
 
     payload = {
         "to": LINE_GROUP_ID,
