@@ -28,6 +28,7 @@ def fetch_maintenance_tasks():
     }
 
     current_month = get_current_month_str()
+    print(f"當月字串：'{current_month}'")
 
     payload = {
     "filter": {
