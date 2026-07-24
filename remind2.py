@@ -31,27 +31,8 @@ def fetch_maintenance_tasks():
 
     payload = {
     "filter": {
-        "and": [
-            {
-                "property": "工程師",
-                "relation": {"contains": ENGINEER_PAGE_ID}
-            },
-            {
-                "property": "交易別",
-                "multi_select": {"contains": "維護案"}
-            },
-            {
-                "property": "[工程師]維護月份",
-                "multi_select": {"contains": current_month}
-            },
-            {
-                "or": [
-                    {"property": "訂單狀態", "status": {"equals": "0-未開始"}},
-                    {"property": "訂單狀態", "status": {"equals": "1-進行中"}},
-                    {"property": "訂單狀態", "status": {"equals": "2-請款結束_尚未完工"}}
-                ]
-            }
-        ]
+        "property": "訂單狀態",
+        "status": {"equals": "1-進行中"}
     }
 }
 
