@@ -41,11 +41,12 @@ def fetch_maintenance_tasks():
     resp.raise_for_status()
     results = resp.json().get("results", [])
 
-    tasks = []
+     tasks = []
     for page in results:
-    props = page.get("properties", {})
-    print("欄位清單：", list(props.keys()))
-    break  # 只印第一筆就好
+        props = page.get("properties", {})
+        print("欄位清單：", list(props.keys()))
+        break  # 只印第一筆就好
+    return tasks
 
         title_list = props.get("案名", {}).get("title", [])
         name = "".join(t.get("plain_text", "") for t in title_list).strip()
