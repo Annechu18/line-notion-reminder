@@ -30,26 +30,19 @@ def fetch_maintenance_tasks():
     print(f"當月字串：'{current_month}'")
 
     payload = {
-        "filter": {
-            "and": [
-                {
-                    "property": "工程師",
-                    "relation": {"contains": ENGINEER_PAGE_ID}
-                },
-                {
-                    "property": "交易別",
-                    "multi_select": {"contains": "維護案"}
-                },
-                {
-                    "or": [
-                        {"property": "訂單狀態", "status": {"equals": "0-未開始"}},
-                        {"property": "訂單狀態", "status": {"equals": "1-進行中"}},
-                        {"property": "訂單狀態", "status": {"equals": "2-請款結束_尚未完工"}}
-                    ]
-                }
-            ]
-        }
+    "filter": {
+        "and": [
+            {
+                "property": "工程師",
+                "relation": {"contains": ENGINEER_PAGE_ID}
+            },
+            {
+                "property": "交易別",
+                "multi_select": {"contains": "維護案"}
+            }
+        ]
     }
+}
 
     resp = requests.post(url, headers=headers, json=payload)
     resp.raise_for_status()
@@ -64,6 +57,11 @@ def fetch_maintenance_tasks():
         if current_month not in months:
             continue
 
+        # 過濾訂單狀態
+        status = props.get("訂單狀態", {}).get("status", {}).get("name", "")
+        if status not in ["0-未開始", "1-進行中", "2-請款結束_尚未完工"]:
+            continue
+        
         # 案名
         title_list = props.get("案名", {}).get("title", [])
         name = "".join(t.get("plain_text", "") for t in title_list).strip()
