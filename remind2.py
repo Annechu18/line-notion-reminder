@@ -27,7 +27,6 @@ def fetch_maintenance_tasks():
     }
 
     current_month = get_current_month_str()
-    print(f"當月字串：'{current_month}'")
 
     payload = {
         "filter": {
@@ -68,7 +67,6 @@ def fetch_maintenance_tasks():
 
         # 客戶
         customers = props.get("客戶", {}).get("relation", [])
-        print(f"客戶 relation：{customers}")
         customer_name = ""
         if customers:
             cid = customers[0]["id"]
