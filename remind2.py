@@ -11,7 +11,6 @@ LINE_GROUP_ID      = os.environ["LINE_GROUP_ID_2"]
 LINE_USER_ID       = os.environ["LINE_USER_ID_2"]
 
 ENGINEER_PAGE_ID   = "3bf43c87619c49a7a18efea0539e18fd"
-STATUS_INCOMPLETE  = ["0-未開始", "1-進行中", "2-請款結束_尚未完工"]
 # ────────────────────────────────────────────────────────
 
 
@@ -31,57 +30,21 @@ def fetch_maintenance_tasks():
     print(f"當月字串：'{current_month}'")
 
     payload = {
-    "filter": {
-        "property": "工程師",
-        "relation": {"contains": ENGINEER_PAGE_ID}
+        "filter": {
+            "property": "工程師",
+            "relation": {"contains": ENGINEER_PAGE_ID}
+        }
     }
-}
 
     resp = requests.post(url, headers=headers, json=payload)
     resp.raise_for_status()
     results = resp.json().get("results", [])
 
-     tasks = []
+    tasks = []
     for page in results:
         props = page.get("properties", {})
         print("欄位清單：", list(props.keys()))
         break  # 只印第一筆就好
-    return tasks
-
-        title_list = props.get("案名", {}).get("title", [])
-        name = "".join(t.get("plain_text", "") for t in title_list).strip()
-
-        customers = props.get("客戶", {}).get("relation", [])
-        customer_name = ""
-        if customers:
-            cid = customers[0]["id"]
-            cr = requests.get(
-                f"https://api.notion.com/v1/pages/{cid}",
-                headers={
-                    "Authorization": f"Bearer {NOTION_TOKEN}",
-                    "Notion-Version": "2022-06-28"
-                }
-            )
-            if cr.ok:
-                cp = cr.json().get("properties", {})
-                for v in cp.values():
-                    if v.get("type") == "title":
-                        tl = v.get("title", [])
-                        customer_name = "".join(t.get("plain_text", "") for t in tl).strip()
-                        break
-
-        start_date = props.get("訂單起日", {}).get("date") or {}
-        end_date = props.get("訂單迄日", {}).get("date") or {}
-        start = start_date.get("start", "")
-        end = end_date.get("start", "")
-
-        if name:
-            tasks.append({
-                "name": name,
-                "customer": customer_name,
-                "start": start,
-                "end": end,
-            })
 
     return tasks
 
@@ -91,9 +54,6 @@ def send_line_message(tasks):
         print("沒有符合條件的維護案，略過傳送。")
         return
 
-    # 最多顯示 10 件
-    tasks = tasks[:10]
-    
     current_month = get_current_month_str()
     task_lines = ""
     for t in tasks:
@@ -101,23 +61,24 @@ def send_line_message(tasks):
         task_lines += f"  📅 {t['start']} ~ {t['end']}\n\n"
 
     payload = {
-    "filter": {
-        "and": [
+        "to": LINE_GROUP_ID,
+        "messages": [
             {
-                "property": "工程師",
-                "relation": {"contains": ENGINEER_PAGE_ID}
-            },
-            {
-                "property": "交易別",
-                "multi_select": {"contains": "維護案"}
-            },
-            {
-                "property": "[工程師]維護月份",
-                "multi_select": {"contains": "7月"}
+                "type": "textV2",
+                "text": f"🔧 {current_month}維護案提醒\n\n{{mention}}，本月需追蹤的維護案共 {len(tasks)} 件：\n\n{task_lines}請確認進度！",
+                "substitution": {
+                    "mention": {
+                        "type": "mention",
+                        "mentionee": {
+                            "type": "user",
+                            "userId": LINE_USER_ID,
+                        }
+                    }
+                }
             }
         ]
     }
-}
+
     headers = {
         "Authorization": f"Bearer {LINE_TOKEN}",
         "Content-Type": "application/json",
