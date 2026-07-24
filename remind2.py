@@ -31,8 +31,23 @@ def fetch_maintenance_tasks():
 
     payload = {
         "filter": {
-            "property": "工程師",
-            "relation": {"contains": ENGINEER_PAGE_ID}
+            "and": [
+                {
+                    "property": "工程師",
+                    "relation": {"contains": ENGINEER_PAGE_ID}
+                },
+                {
+                    "property": "交易別",
+                    "multi_select": {"contains": "維護案"}
+                },
+                {
+                    "or": [
+                        {"property": "訂單狀態", "status": {"equals": "0-未開始"}},
+                        {"property": "訂單狀態", "status": {"equals": "1-進行中"}},
+                        {"property": "訂單狀態", "status": {"equals": "2-請款結束_尚未完工"}}
+                    ]
+                }
+            ]
         }
     }
 
@@ -43,8 +58,49 @@ def fetch_maintenance_tasks():
     tasks = []
     for page in results:
         props = page.get("properties", {})
-        print("欄位清單：", list(props.keys()))
-        break  # 只印第一筆就好
+
+        # 在 Python 裡過濾維護月份
+        months = [m["name"] for m in props.get("[工程師]維護月份", {}).get("multi_select", [])]
+        if current_month not in months:
+            continue
+
+        # 案名
+        title_list = props.get("案名", {}).get("title", [])
+        name = "".join(t.get("plain_text", "") for t in title_list).strip()
+
+        # 客戶
+        customers = props.get("客戶", {}).get("relation", [])
+        customer_name = ""
+        if customers:
+            cid = customers[0]["id"]
+            cr = requests.get(
+                f"https://api.notion.com/v1/pages/{cid}",
+                headers={
+                    "Authorization": f"Bearer {NOTION_TOKEN}",
+                    "Notion-Version": "2022-06-28"
+                }
+            )
+            if cr.ok:
+                cp = cr.json().get("properties", {})
+                for v in cp.values():
+                    if v.get("type") == "title":
+                        tl = v.get("title", [])
+                        customer_name = "".join(t.get("plain_text", "") for t in tl).strip()
+                        break
+
+        # 訂單起迄日
+        start_date = props.get("訂單起日", {}).get("date") or {}
+        end_date = props.get("訂單迄日", {}).get("date") or {}
+        start = start_date.get("start", "")
+        end = end_date.get("start", "")
+
+        if name:
+            tasks.append({
+                "name": name,
+                "customer": customer_name,
+                "start": start,
+                "end": end,
+            })
 
     return tasks
 
