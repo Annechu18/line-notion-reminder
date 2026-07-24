@@ -35,7 +35,7 @@ def fetch_maintenance_tasks():
             "select": {"equals": "維護案"}
         }
     }
-    
+
     resp = requests.post(url, headers=headers, json=payload)
     resp.raise_for_status()
     results = resp.json().get("results", [])
@@ -53,7 +53,7 @@ def fetch_maintenance_tasks():
         status = props.get("訂單狀態", {}).get("status", {}).get("name", "")
         if status not in ["0-未開始", "1-進行中", "2-請款結束_尚未完工"]:
             continue
-        
+
         # 案名
         title_list = props.get("案名", {}).get("title", [])
         name = "".join(t.get("plain_text", "") for t in title_list).strip()
@@ -107,18 +107,22 @@ def send_line_message(tasks):
         task_lines += f"  📅 {t['start']} ~ {t['end']}\n\n"
 
     payload = {
-        "filter": {
-            "and": [
-                {
-                    "property": "工程師",
-                    "relation": {"contains": ENGINEER_PAGE_ID}
-                },
-                {
-                    "property": "交易別",
-                    "select": {"equals": "維護案"}
+        "to": LINE_GROUP_ID,
+        "messages": [
+            {
+                "type": "textV2",
+                "text": f"🔧 {current_month}維護案提醒\n\n{{mention}}，本月需追蹤的維護案共 {len(tasks)} 件：\n\n{task_lines}請確認進度！",
+                "substitution": {
+                    "mention": {
+                        "type": "mention",
+                        "mentionee": {
+                            "type": "user",
+                            "userId": LINE_USER_ID,
+                        }
+                    }
                 }
-            ]
-        }
+            }
+        ]
     }
 
     headers = {
