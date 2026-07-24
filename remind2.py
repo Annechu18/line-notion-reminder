@@ -87,8 +87,8 @@ def send_line_message(tasks):
         print("沒有符合條件的維護案，略過傳送。")
         return
 
-    # 最多顯示 30 件
-    tasks = tasks[:30]
+    # 最多顯示 10 件
+    tasks = tasks[:10]
     
     current_month = get_current_month_str()
     task_lines = ""
