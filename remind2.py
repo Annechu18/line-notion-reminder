@@ -30,11 +30,30 @@ def fetch_maintenance_tasks():
     current_month = get_current_month_str()
 
     payload = {
-    "filter": {
-        "property": "訂單狀態",
-        "status": {"equals": "1-進行中"}
+        "filter": {
+            "and": [
+                {
+                    "property": "工程師",
+                    "relation": {"contains": ENGINEER_PAGE_ID}
+                },
+                {
+                    "property": "交易別",
+                    "multi_select": {"contains": "維護案"}
+                },
+                {
+                    "property": "[工程師]維護月份",
+                    "multi_select": {"contains": current_month}
+                },
+                {
+                    "or": [
+                        {"property": "訂單狀態", "status": {"equals": "0-未開始"}},
+                        {"property": "訂單狀態", "status": {"equals": "1-進行中"}},
+                        {"property": "訂單狀態", "status": {"equals": "2-請款結束_尚未完工"}}
+                    ]
+                }
+            ]
+        }
     }
-}
 
     resp = requests.post(url, headers=headers, json=payload)
     resp.raise_for_status()
@@ -44,11 +63,9 @@ def fetch_maintenance_tasks():
     for page in results:
         props = page.get("properties", {})
 
-        # 案名（標題欄位）
         title_list = props.get("案名", {}).get("title", [])
         name = "".join(t.get("plain_text", "") for t in title_list).strip()
 
-        # 客戶（related）- 查詢頁面名稱
         customers = props.get("客戶", {}).get("relation", [])
         customer_name = ""
         if customers:
@@ -68,7 +85,6 @@ def fetch_maintenance_tasks():
                         customer_name = "".join(t.get("plain_text", "") for t in tl).strip()
                         break
 
-        # 訂單起迄日
         start_date = props.get("訂單起日", {}).get("date") or {}
         end_date = props.get("訂單迄日", {}).get("date") or {}
         start = start_date.get("start", "")
@@ -100,30 +116,23 @@ def send_line_message(tasks):
         task_lines += f"  📅 {t['start']} ~ {t['end']}\n\n"
 
     payload = {
-    "filter": {
-        "and": [
+        "to": LINE_GROUP_ID,
+        "messages": [
             {
-                "property": "工程師",
-                "relation": {"contains": ENGINEER_PAGE_ID}
-            },
-            {
-                "property": "交易別",
-                "multi_select": {"contains": "維護案"}
-            },
-            {
-                "property": "[工程師]維護月份",
-                "multi_select": {"contains": current_month}
-            },
-            {
-                "or": [
-                    {"property": "訂單狀態", "status": {"equals": "0-未開始"}},
-                    {"property": "訂單狀態", "status": {"equals": "1-進行中"}},
-                    {"property": "訂單狀態", "status": {"equals": "2-請款結束_尚未完工"}}
-                ]
+                "type": "textV2",
+                "text": f"🔧 {current_month}維護案提醒\n\n{{mention}}，本月需追蹤的維護案共 {len(tasks)} 件：\n\n{task_lines}請確認進度！",
+                "substitution": {
+                    "mention": {
+                        "type": "mention",
+                        "mentionee": {
+                            "type": "user",
+                            "userId": LINE_USER_ID,
+                        }
+                    }
+                }
             }
         ]
     }
-}
 
     headers = {
         "Authorization": f"Bearer {LINE_TOKEN}",
