@@ -60,6 +60,7 @@ def fetch_maintenance_tasks():
 
         # 客戶
         customers = props.get("客戶", {}).get("relation", [])
+        print(f"客戶 relation：{customers}")
         customer_name = ""
         if customers:
             cid = customers[0]["id"]
