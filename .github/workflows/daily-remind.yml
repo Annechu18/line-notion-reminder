@@ -2,13 +2,15 @@ name: Daily LINE Reminder
 
 on:
   schedule:
+    # 每週一到五 早上 9:00 台灣時間
     - cron: "0 1 * * 1-5"
+    # 每月第一個週一 早上 9:00 台灣時間
+    - cron: "0 1 1-7 * 1"
   workflow_dispatch:
 
 jobs:
   remind:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -29,3 +31,28 @@ jobs:
           LINE_GROUP_ID:      ${{ secrets.LINE_GROUP_ID }}
           LINE_USER_ID:       ${{ secrets.LINE_USER_ID }}
         run: python remind.py
+
+  maintenance-remind:
+    runs-on: ubuntu-latest
+    # 只在每月 1-7 號且是週一才執行
+    if: ${{ github.event.schedule == '0 1 1-7 * 1' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run maintenance reminder script
+        env:
+          NOTION_TOKEN:         ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID_2: ${{ secrets.NOTION_DATABASE_ID_2 }}
+          LINE_TOKEN:           ${{ secrets.LINE_TOKEN }}
+          LINE_GROUP_ID_2:      ${{ secrets.LINE_GROUP_ID_2 }}
+          LINE_USER_ID_2:       ${{ secrets.LINE_USER_ID_2 }}
+        run: python remind2.py
