@@ -31,16 +31,8 @@ def fetch_maintenance_tasks():
 
     payload = {
         "filter": {
-            "and": [
-                {
-                    "property": "工程師",
-                    "relation": {"contains": ENGINEER_PAGE_ID}
-                },
-                {
-                    "property": "交易別",
-                    "multi_select": {"contains": "維護案"}
-                }
-            ]
+            "property": "交易別",
+            "multi_select": {"contains": "維護案"}
         }
     }
     
