@@ -75,7 +75,7 @@ def send_line_message(tasks):
         "messages": [
             {
                 "type": "textV2",
-                "text": f"📋 每日待辦提醒\n\n嗨 {{mention}}，我來吵你了，你有 {len(tasks)} 件事項未完成：\n\n{task_lines}\n加緊腳步慢慢來！💪",
+                "text": f"📋 每日待辦提醒\n\n嗨 {{mention}}，每天吵你很膩齁，你有 {len(tasks)} 件事項未完成：\n\n{task_lines}\n等待待辦清單0項的那一天！",
                 "substitution": {
                     "mention": {
                         "type": "mention",
