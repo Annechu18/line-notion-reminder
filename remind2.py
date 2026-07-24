@@ -110,7 +110,7 @@ def send_line_message(tasks):
             },
             {
                 "property": "[工程師]維護月份",
-                "multi_select": {"contains": current_month}
+                "multi_select": {"contains": "7月"}
             }
         ]
     }
