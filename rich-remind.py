@@ -105,4 +105,4 @@ if __name__ == "__main__":
     print("🔍 讀取 Notion 待辦事項...")
     tasks = fetch_incomplete_tasks()
     print(f"   找到 {len(tasks)} 件未完成事項")
-     # send_line_message(tasks)  # 暫時停用
+    send_line_message(tasks) 
