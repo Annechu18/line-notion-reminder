@@ -30,20 +30,20 @@ def fetch_maintenance_tasks():
     print(f"當月字串：'{current_month}'")
 
     payload = {
-    "filter": {
-        "and": [
-            {
-                "property": "工程師",
-                "relation": {"contains": ENGINEER_PAGE_ID}
-            },
-            {
-                "property": "交易別",
-                "multi_select": {"contains": "維護案"}
-            }
-        ]
+        "filter": {
+            "and": [
+                {
+                    "property": "工程師",
+                    "relation": {"contains": ENGINEER_PAGE_ID}
+                },
+                {
+                    "property": "交易別",
+                    "multi_select": {"contains": "維護案"}
+                }
+            ]
+        }
     }
-}
-
+    
     resp = requests.post(url, headers=headers, json=payload)
     resp.raise_for_status()
     results = resp.json().get("results", [])
