@@ -3,7 +3,7 @@ import requests
 from datetime import datetime
 
 # ── 設定區 ──────────────────────────────────────────────
-NOTION_TOKEN       = os.environ["NOTION_TOKEN"]
+NOTION_TOKEN       = os.environ["NOTION_TOKEN_2"]
 NOTION_DATABASE_ID = os.environ["NOTION_DATABASE_ID_2"]
 
 LINE_TOKEN         = os.environ["LINE_TOKEN"]
