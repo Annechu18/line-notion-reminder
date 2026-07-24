@@ -48,7 +48,7 @@ jobs:
 
       - name: Run maintenance reminder script
         env:
-          NOTION_TOKEN:         ${{ secrets.NOTION_TOKEN }}
+          NOTION_TOKEN_2:         ${{ secrets.NOTION_TOKEN_2 }}
           NOTION_DATABASE_ID_2: ${{ secrets.NOTION_DATABASE_ID_2 }}
           LINE_TOKEN:           ${{ secrets.LINE_TOKEN }}
           LINE_GROUP_ID_2:      ${{ secrets.LINE_GROUP_ID_2 }}
