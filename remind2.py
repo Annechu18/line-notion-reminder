@@ -32,7 +32,7 @@ def fetch_maintenance_tasks():
     payload = {
         "filter": {
             "property": "交易別",
-            "multi_select": {"contains": "維護案"}
+            "select": {"equals": "維護案"}
         }
     }
     
