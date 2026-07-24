@@ -97,24 +97,23 @@ def send_line_message(tasks):
         task_lines += f"  📅 {t['start']} ~ {t['end']}\n\n"
 
     payload = {
-        "to": LINE_GROUP_ID,
-        "messages": [
+    "filter": {
+        "and": [
             {
-                "type": "textV2",
-                "text": f"🔧 {current_month}維護案提醒\n\n{{mention}}，本月需追蹤的維護案共 {len(tasks)} 件：\n\n{task_lines}請確認進度！",
-                "substitution": {
-                    "mention": {
-                        "type": "mention",
-                        "mentionee": {
-                            "type": "user",
-                            "userId": LINE_USER_ID,
-                        }
-                    }
-                }
+                "property": "工程師",
+                "relation": {"contains": ENGINEER_PAGE_ID}
+            },
+            {
+                "property": "交易別",
+                "multi_select": {"contains": "維護案"}
+            },
+            {
+                "property": "[工程師]維護月份",
+                "multi_select": {"contains": current_month}
             }
         ]
     }
-
+}
     headers = {
         "Authorization": f"Bearer {LINE_TOKEN}",
         "Content-Type": "application/json",
