@@ -2,10 +2,7 @@ name: Daily LINE Reminder
 
 on:
   schedule:
-    # 每週一到五 早上 9:00 台灣時間
-    - cron: "0 1 * * 1-5"
-    # 每月第一個週一 早上 9:00 台灣時間
-    - cron: "0 1 1-7 * 1"
+  - cron: "0 1 * * 1-5"
   workflow_dispatch:
 
 jobs:
