@@ -146,6 +146,12 @@ def send_line_message(tasks):
 
 
 if __name__ == "__main__":
+    today = datetime.now()
+    # 判斷是否為當月第一個週一（1-7號且是週一）
+    if not (today.weekday() == 0 and 1 <= today.day <= 7):
+        print("今天不是當月第一個週一，略過。")
+        exit(0)
+
     print("🔍 讀取 Notion 維護案清單...")
     tasks = fetch_maintenance_tasks()
     print(f"   找到 {len(tasks)} 件符合條件的維護案")
